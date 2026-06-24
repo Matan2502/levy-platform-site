@@ -345,5 +345,15 @@ footer{background:var(--bg);border-top:1px solid var(--border-soft);padding:32px
   els.forEach(function(e){io.observe(e)});
 })();
 </script>
+<script>
+window.addEventListener('load',function(){setTimeout(function(){
+ var vw=document.documentElement.clientWidth, bad=[];
+ document.querySelectorAll('body *').forEach(function(el){
+   var r=el.getBoundingClientRect();
+   if(r.right>vw+1){bad.push(el.tagName+'.'+((el.className&&el.className.baseVal!==undefined?el.className.baseVal:el.className)||'').toString().split(' ').join('.')+'>'+Math.round(r.right));}
+ });
+ document.title='OVF vw='+vw+' sw='+document.documentElement.scrollWidth+' :: '+bad.slice(0,15).join(' | ');
+},400);});
+</script>
 </body>
 </html>
