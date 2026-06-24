@@ -1,0 +1,4 @@
+# local-only helpers (don't publish to GitHub Pages)
+*.command
+.vscode/
+.DS_Store
