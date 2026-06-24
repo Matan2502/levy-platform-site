@@ -2,3 +2,5 @@
 *.command
 .vscode/
 .DS_Store
+dbg*.html
+*.tmp
