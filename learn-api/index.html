@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>תרגול API · בקשה ↔ תשובה אמיתית</title>
+
+<!-- אותו פונט כמו באתר שלך (Heebo), כדי שזה ירגיש מוכר -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#FAFBFC; --surface:#FFFFFF; --section:#F4F8F7;
+    --text:#0F172A; --sub:#64748B; --muted:#94A3B8;
+    --border:#E2E8F0; --border-soft:#F1F5F9;
+    --accent:#0F766E; --accent-hover:#134E4A; --accent-light:#CCFBF1;
+    --code-bg:#0F172A; --code-text:#E2E8F0;
+    --ok:#15803D; --ok-bg:#DCFCE7; --err:#B91C1C; --err-bg:#FEE2E2;
+    --radius:14px; --shadow:0 10px 30px rgba(15,23,42,.07);
+  }
+  body{font-family:'Heebo',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+       background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;padding:32px 18px}
+  .wrap{max-width:760px;margin:0 auto}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace;direction:ltr;text-align:left}
+
+  /* ---- כותרת ---- */
+  .hero{text-align:center;margin-bottom:28px}
+  .badge{display:inline-block;background:var(--accent-light);color:var(--accent-hover);
+         font-size:.8rem;font-weight:600;padding:5px 14px;border-radius:999px;margin-bottom:14px}
+  h1{font-size:clamp(1.6rem,4vw,2rem);font-weight:700;letter-spacing:-.5px}
+  .hero p{color:var(--sub);margin-top:8px;font-size:1.02rem}
+
+  /* ---- כרטיסים ---- */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+        padding:22px;margin-bottom:18px;box-shadow:var(--shadow)}
+  .card h2{font-size:1.08rem;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .step-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;
+            background:var(--accent);color:#fff;border-radius:7px;font-size:.85rem;font-weight:600;flex:none}
+  .card .hint{color:var(--muted);font-size:.9rem;margin-bottom:16px}
+
+  /* ---- בקרים ---- */
+  .controls{display:flex;flex-wrap:wrap;align-items:end;gap:14px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:.85rem;font-weight:600;color:var(--sub)}
+  select{font-family:inherit;font-size:1rem;padding:11px 14px;border:1px solid var(--border);
+         border-radius:10px;background:var(--surface);color:var(--text);cursor:pointer;min-width:130px}
+  select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+  .arrow{font-size:1.4rem;color:var(--muted);padding-bottom:8px}
+  button{font-family:inherit;font-size:1rem;font-weight:600;color:#fff;background:var(--accent);
+         border:none;padding:12px 26px;border-radius:10px;cursor:pointer;transition:.15s;margin-right:auto}
+  button:hover{background:var(--accent-hover);transform:translateY(-1px)}
+  button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+  /* ---- שורת ה-URL החיה ---- */
+  .url-box{margin-top:18px;background:var(--code-bg);border-radius:10px;padding:14px 16px;
+           font-size:.92rem;color:var(--code-text);overflow-x:auto;white-space:nowrap}
+  .url-box .label{color:#64748B;font-size:.72rem;display:block;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
+  .u-host{color:#7DD3FC} .u-path{color:#E2E8F0} .u-q{color:#FBBF24} .u-amp{color:#64748B}
+
+  /* ---- תוצאות ---- */
+  .results{display:grid;gap:14px}
+  .panel{border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--section)}
+  .panel .ptitle{font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;
+                 letter-spacing:.5px;margin-bottom:8px}
+  .status-pill{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:1.05rem}
+  .status-pill .dot{width:10px;height:10px;border-radius:50%}
+  .ok{color:var(--ok)} .ok .dot{background:var(--ok)}
+  .err{color:var(--err)} .err .dot{background:var(--err)}
+  .answer{font-size:1.5rem;font-weight:700;color:var(--accent-hover)}
+  .answer small{font-size:.9rem;font-weight:400;color:var(--sub);display:block;margin-top:4px}
+  pre.json{background:var(--code-bg);color:var(--code-text);padding:16px;border-radius:10px;
+           font-size:.88rem;overflow-x:auto;line-height:1.5}
+  .placeholder{color:var(--muted);font-style:normal}
+  .err-msg{background:var(--err-bg);color:var(--err);padding:14px 16px;border-radius:10px;font-weight:500}
+
+  /* ---- "מה קרה כאן?" ---- */
+  .explain li{list-style:none;padding:12px 0;border-bottom:1px solid var(--border-soft);display:flex;gap:12px}
+  .explain li:last-child{border-bottom:none}
+  .explain .k{font-weight:600;color:var(--accent);min-width:150px;flex:none}
+  .explain code{font-family:'JetBrains Mono',monospace;background:var(--accent-light);
+                color:var(--accent-hover);padding:2px 7px;border-radius:5px;font-size:.85rem;direction:ltr;display:inline-block}
+
+  /* ---- גשר לחשבוניות ---- */
+  .bridge{background:linear-gradient(135deg,#0F766E,#134E4A);color:#fff;border:none}
+  .bridge h2{color:#fff} .bridge p{color:#CCFBF1;font-size:.98rem}
+  .bridge code{background:rgba(255,255,255,.18);color:#fff;padding:2px 7px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:.85rem;direction:ltr;display:inline-block}
+  footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:24px}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="badge">תרגול מעשי · API</span>
+    <h1>בקשה ↔ תשובה — מול העיניים</h1>
+    <p>לוחצים על כפתור, ורואים API אמיתי עובד: ה-URL נבנה, הבקשה נשלחת, וחוזרת תשובת JSON.</p>
+  </div>
+
+  <!-- ====== כרטיס 1: הבקרים ====== -->
+  <div class="card">
+    <h2><span class="step-num">1</span> בחר מה לבקש</h2>
+    <p class="hint">נבקש שער המרה בין שני מטבעות. שים לב איך הבחירה שלך משנה את שורת ה-URL למטה.</p>
+
+    <div class="controls">
+      <div class="field">
+        <label for="from">מטבע מקור (from)</label>
+        <select id="from"></select>
+      </div>
+      <span class="arrow">←</span>
+      <div class="field">
+        <label for="to">מטבע יעד (to)</label>
+        <select id="to"></select>
+      </div>
+      <button id="sendBtn">שלח בקשה</button>
+    </div>
+
+    <!-- שורת ה-URL החיה: כך נראית הכתובת שאליה נשלחת הבקשה -->
+    <div class="url-box">
+      <span class="label">ה-endpoint שאליו נשלחת הבקשה (method: GET)</span>
+      <span id="urlPreview" class="mono"></span>
+    </div>
+  </div>
+
+  <!-- ====== כרטיס 2: התוצאה ====== -->
+  <div class="card">
+    <h2><span class="step-num">2</span> מה חזר מהשרת</h2>
+    <p class="hint">שלושת החלקים של כל תשובת API: קוד הסטטוס, המידע שאנחנו רוצים, וה-JSON הגולמי כמו שהוא.</p>
+
+    <div class="results">
+      <div class="panel">
+        <div class="ptitle">Status code — האם הבקשה הצליחה</div>
+        <div id="status"><span class="placeholder">עוד לא נשלחה בקשה…</span></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">התשובה, בשפה אנושית</div>
+        <div id="answer"><span class="placeholder">—</span></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">ה-JSON הגולמי שחזר (response body)</div>
+        <pre class="json" id="raw"><span class="placeholder">—</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== כרטיס 3: ההסבר ====== -->
+  <div class="card">
+    <h2><span class="step-num">3</span> מה קרה כאן? (5 המושגים)</h2>
+    <ul class="explain">
+      <li><span class="k">Endpoint (כתובת)</span><span>הכתובת ב-URL שאליה פנינו — <code>api.frankfurter.dev/v1/latest</code></span></li>
+      <li><span class="k">Method (פעולה)</span><span>השתמשנו ב-<code>GET</code> = "תביא לי מידע" (זו ברירת המחדל של <code>fetch</code>)</span></li>
+      <li><span class="k">Query parameters</span><span>מה שמופיע אחרי ה-<code>?</code> — <code>from=USD&to=ILS</code> — אלה הפרמטרים שבחרת</span></li>
+      <li><span class="k">JSON response</span><span>השרת החזיר טקסט בפורמט JSON, והקוד הפך אותו לאובייקט עם <code>response.json()</code></span></li>
+      <li><span class="k">Status code</span><span><code>200</code> = הצלחה. קודים אחרים (401, 404, 500) מספרים שמשהו השתבש</span></li>
+    </ul>
+  </div>
+
+  <!-- ====== כרטיס 4: גשר לחשבוניות ====== -->
+  <div class="card bridge">
+    <h2>ועכשיו — חשבוניות לרשות המיסים</h2>
+    <p>
+      ה-API של רשות המיסים עובד <strong>בדיוק ככה</strong>: אותו <code>fetch</code>, אותו JSON שחוזר.
+      ההבדלים היחידים — הבקשה תהיה <code>POST</code> (שולחים פרטי חשבונית במקום רק לקרוא מידע),
+      יתווסף <code>Authorization</code> עם token (כי זה מידע רגיש), ובמקום <code>rates.ILS</code>
+      תקרא את השדה <code>allocationNumber</code> (מספר ההקצאה). אותו עיקרון — שכבת אבטחה אחת מעל.
+    </p>
+  </div>
+
+  <footer>קובץ תרגול עצמאי · בטוח למחיקה · לא חלק מהאתר המופק</footer>
+
+</div>
+
+<script>
+/* =======================================================================
+   תרגול API — שערי מטבע דרך Frankfurter (חינמי, בלי מפתח ובלי הרשמה)
+   קרא את ההערות לאורך הדרך — הקובץ הזה הוא השיעור.
+   ======================================================================= */
+
+// רשימת מטבעות לבחירה (קוד מטבע + שם בעברית + סימן)
+const CURRENCIES = [
+  { code: 'USD', name: 'דולר אמריקאי', sign: '$'  },
+  { code: 'ILS', name: 'שקל',          sign: '₪'  },
+  { code: 'EUR', name: 'אירו',          sign: '€'  },
+  { code: 'GBP', name: 'לירה שטרלינג',  sign: '£'  },
+  { code: 'JPY', name: 'יֵן יפני',       sign: '¥'  },
+];
+
+// תרגום קודי סטטוס נפוצים לעברית — ככה "מדברים" שרתים
+const STATUS_TEXT = {
+  200: 'הצלחה — הבקשה תקינה והמידע חזר',
+  400: 'בקשה שגויה — שלחנו משהו לא תקין',
+  401: 'לא מאומת — חסר/שגוי token הזדהות',
+  404: 'לא נמצא — הכתובת או המשאב לא קיימים',
+  429: 'יותר מדי בקשות — חרגנו מהמכסה (rate limit)',
+  500: 'שגיאת שרת — התקלה בצד שלהם, לא אצלנו',
+};
+
+// תפיסה של אלמנטים מה-HTML כדי לעדכן אותם מ-JS
+const fromSel    = document.getElementById('from');
+const toSel      = document.getElementById('to');
+const sendBtn    = document.getElementById('sendBtn');
+const urlPreview = document.getElementById('urlPreview');
+const statusEl   = document.getElementById('status');
+const answerEl   = document.getElementById('answer');
+const rawEl      = document.getElementById('raw');
+
+// --- מילוי שני התפריטים במטבעות ---
+CURRENCIES.forEach(c => {
+  fromSel.add(new Option(`${c.code} · ${c.name}`, c.code));
+  toSel.add(new Option(`${c.code} · ${c.name}`, c.code));
+});
+fromSel.value = 'USD';   // ברירת מחדל: דולר
+toSel.value   = 'ILS';   // → שקל
+
+/* -----------------------------------------------------------------------
+   בניית ה-URL מהבחירה של המשתמש.
+   זה הלב של "query parameters": הערכים שבוחרים הופכים לחלק מהכתובת.
+   ----------------------------------------------------------------------- */
+function buildUrl() {
+  const from = fromSel.value;
+  const to   = toSel.value;
+  // ה-endpoint הבסיסי + הפרמטרים אחרי סימן ה-?
+  return `https://api.frankfurter.dev/v1/latest?from=${from}&to=${to}`;
+}
+
+// הצגה צבעונית של ה-URL בשורה החיה (רק ויזואלי — מפרק את החלקים)
+function renderUrlPreview() {
+  const from = fromSel.value, to = toSel.value;
+  urlPreview.innerHTML =
+    `<span class="u-host">https://api.frankfurter.dev</span>` +
+    `<span class="u-path">/v1/latest</span>` +
+    `<span class="u-q">?from=${from}</span>` +
+    `<span class="u-amp">&</span>` +
+    `<span class="u-q">to=${to}</span>`;
+}
+
+// בכל שינוי בתפריטים — לעדכן את שורת ה-URL כדי לראות את הקשר
+fromSel.addEventListener('change', renderUrlPreview);
+toSel.addEventListener('change', renderUrlPreview);
+renderUrlPreview(); // ציור ראשוני בטעינת הדף
+
+/* -----------------------------------------------------------------------
+   הפונקציה המרכזית: שולחת את הבקשה ומציגה את התשובה.
+   async/await = "חכה שהשרת יענה לפני שתמשיך לשורה הבאה".
+   ----------------------------------------------------------------------- */
+async function sendRequest() {
+  const from = fromSel.value, to = toSel.value;
+
+  // ולידציה קטנה: אין טעם לבקש שער של מטבע מול עצמו
+  if (from === to) {
+    showError('בחר שני מטבעות שונים 🙂 (אי אפשר לבקש שער של מטבע מול עצמו)');
+    return;
+  }
+
+  // מצב "טוען" — חוויית משתמש בזמן ההמתנה לשרת
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'שולח…';
+  statusEl.innerHTML = '<span class="placeholder">ממתין לתשובת השרת…</span>';
+  answerEl.innerHTML = '<span class="placeholder">—</span>';
+  rawEl.innerHTML    = '<span class="placeholder">—</span>';
+
+  try {
+    const url = buildUrl();
+
+    // ===== כאן קורה הקסם: שולחים את הבקשה ומחכים לתשובה =====
+    const response = await fetch(url);          // (1) שליחת הבקשה (GET)
+
+    // (2) מציגים את קוד הסטטוס — האם זה הצליח?
+    const meaning = STATUS_TEXT[response.status] || 'קוד סטטוס לא מוכר';
+    const okClass = response.ok ? 'ok' : 'err';
+    statusEl.innerHTML =
+      `<span class="status-pill ${okClass}"><span class="dot"></span>` +
+      `${response.status} — ${meaning}</span>`;
+
+    // אם השרת החזיר שגיאה (לא 2xx) — לעצור כאן
+    if (!response.ok) {
+      throw new Error(`השרת החזיר סטטוס ${response.status}`);
+    }
+
+    // (3) הופכים את גוף התשובה מ-JSON (טקסט) לאובייקט JavaScript
+    const data = await response.json();
+
+    // (4) קוראים את השדה שאנחנו רוצים מתוך האובייקט
+    //     מבנה התשובה: { amount, base, date, rates: { ILS: 3.71 } }
+    const rate = data.rates[to];
+    const fromSign = CURRENCIES.find(c => c.code === from)?.sign || '';
+    const toSign   = CURRENCIES.find(c => c.code === to)?.sign   || '';
+
+    answerEl.innerHTML =
+      `1 ${from} ${fromSign} = ${rate} ${to} ${toSign}` +
+      `<small>נכון לתאריך ${data.date} · מקור: הבנק המרכזי האירופי</small>`;
+
+    // (5) מציגים את ה-JSON הגולמי בדיוק כמו שחזר — ככה נראית תשובת API אמיתית
+    rawEl.textContent = JSON.stringify(data, null, 2);
+
+  } catch (err) {
+    // טיפול בשגיאה: אין אינטרנט / השרת נפל / סטטוס שגיאה.
+    // בלי try/catch הדף היה "נשבר" — לכן זה חלק בלתי נפרד מעבודה מול API.
+    showError(`לא הצלחנו להשלים את הבקשה: ${err.message}`);
+  } finally {
+    // מה שתמיד צריך לקרות בסוף — להחזיר את הכפתור למצב רגיל
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'שלח בקשה';
+  }
+}
+
+function showError(msg) {
+  statusEl.innerHTML = `<span class="status-pill err"><span class="dot"></span>שגיאה</span>`;
+  answerEl.innerHTML = `<div class="err-msg">${msg}</div>`;
+  rawEl.innerHTML    = '<span class="placeholder">—</span>';
+}
+
+// חיבור הכפתור לפעולה
+sendBtn.addEventListener('click', sendRequest);
+</script>
+</body>
+</html>
