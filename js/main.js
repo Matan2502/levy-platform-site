@@ -8,7 +8,7 @@
   function countDown(){
     if(counted)return; counted=true;
     if(reduce){zero.textContent='0';return;}
-    var t0=null, FROM=40, DUR=4400;
+    var t0=null, FROM=40, DUR=3000;
     function frame(ts){
       if(!t0)t0=ts;
       var p=Math.min((ts-t0)/DUR,1), e=1-Math.pow(1-p,3);
