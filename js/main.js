@@ -3,17 +3,17 @@
   var els=[].slice.call(document.querySelectorAll('.reveal'));
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* count-down 24 -> 0 on the impact number */
-  var zero=document.getElementById('zeroNum'), counted=false;
-  function countDown(){
-    if(counted)return; counted=true;
-    if(reduce){zero.textContent='0';return;}
-    var t0=null, FROM=40, DUR=3000;
+  /* count-up on stat numbers (data-count) */
+  function countUp(el){
+    if(el.dataset.done)return; el.dataset.done='1';
+    var target=parseInt(el.dataset.count,10)||0, suffix=el.dataset.suffix||'';
+    if(reduce){el.firstChild.textContent=String(target);return;}
+    var t0=null, DUR=1400;
     function frame(ts){
       if(!t0)t0=ts;
       var p=Math.min((ts-t0)/DUR,1), e=1-Math.pow(1-p,3);
-      zero.textContent=String(Math.round(FROM*(1-e)));
-      if(p<1)requestAnimationFrame(frame);else zero.textContent='0';
+      el.firstChild.textContent=String(Math.round(target*e));
+      if(p<1)requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
   }
@@ -21,9 +21,10 @@
   function show(e){
     if(e.classList.contains('in'))return;
     e.classList.add('in');
-    if(zero&&(e===zero||e.contains(zero)))countDown();
+    var nums=e.querySelectorAll?e.querySelectorAll('[data-count]'):[];
+    [].forEach.call(nums,countUp);
   }
-  if(reduce||!('IntersectionObserver' in window)){els.forEach(show);if(zero)zero.textContent='0';return;}
+  if(reduce||!('IntersectionObserver' in window)){els.forEach(show);return;}
 
   /* stagger: delay by position among sibling reveals */
   els.forEach(function(e){
@@ -52,6 +53,7 @@
   addEventListener('scroll',onScroll,{passive:true});
   addEventListener('resize',onScroll,{passive:true});
   requestAnimationFrame(sweep); /* reveal whatever is on screen at load */
+
   /* anchor jumps: sweep repeatedly while smooth-scroll settles */
   document.addEventListener('click',function(ev){
     var a=ev.target.closest&&ev.target.closest('a[href^="#"]');
