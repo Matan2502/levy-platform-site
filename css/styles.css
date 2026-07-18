@@ -86,16 +86,20 @@ nav{position:sticky;top:0;z-index:60;background:rgba(250,248,244,.88);backdrop-f
   .hero-actions .btn{width:100%}
 }
 
-/* hero visual collage */
-.hv{position:relative;padding:14px 0 46px 26px}
-.hv-browser{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;box-shadow:var(--shadow)}
-.hv-browser .bar{display:flex;align-items:center;gap:6px;padding:11px 14px;background:#F6F2EA;border-bottom:1px solid var(--line-soft)}
-.hv-browser .bar i{width:8px;height:8px;border-radius:50%;background:#DDD5C4;display:block}
-.hv-browser .url{margin-inline-start:12px;font-size:.68rem;color:var(--faint);background:#fff;border:1px solid var(--line-soft);border-radius:6px;padding:3px 14px;direction:ltr}
-.hv-phone{position:absolute;bottom:0;left:0;width:172px;border:7px solid var(--ink);border-radius:30px;overflow:hidden;background:var(--ink);box-shadow:0 30px 60px rgba(18,16,13,.22)}
-.hv-badge{position:absolute;top:0;left:34px;background:var(--ink);color:#F5EEDF;font-size:.78rem;font-weight:500;border-radius:999px;padding:7px 16px;letter-spacing:.4px;z-index:2}
+/* hero visual — two-phone fan */
+.hv2{position:relative;display:flex;justify-content:center;padding:40px 0 10px}
+.ph{border:7px solid var(--ink);border-radius:34px;overflow:hidden;background:var(--ink)}
+.ph-front{width:min(258px,60%);z-index:2;transform:rotate(2.5deg);box-shadow:0 34px 70px rgba(18,16,13,.22)}
+.ph-back{position:absolute;width:min(216px,50%);inset-inline-start:4%;top:78px;transform:rotate(-7deg);box-shadow:0 20px 45px rgba(18,16,13,.13)}
+.hv-badge{position:absolute;top:6px;inset-inline-start:50%;transform:translateX(50%);white-space:nowrap;background:var(--ink);color:#F5EEDF;font-size:.78rem;font-weight:500;border-radius:999px;padding:7px 16px;letter-spacing:.4px;z-index:3}
 .hv-badge b{color:#D9B36A;font-weight:600}
-@media(max-width:640px){.hv{padding:12px 0 40px 12px}.hv-phone{width:132px;border-width:5px;border-radius:22px}.hv-badge{left:12px}}
+@media(max-width:640px){
+  .hv2{padding:36px 0 6px}
+  .ph{border-width:5px;border-radius:26px}
+  .ph-front{width:56%}
+  .ph-back{width:46%;top:60px}
+  .hv-badge{font-size:.72rem;padding:6px 13px}
+}
 
 /* stats band */
 .stats{border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);background:var(--card)}
