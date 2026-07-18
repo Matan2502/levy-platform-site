@@ -152,6 +152,16 @@ nav{position:sticky;top:0;z-index:60;background:rgba(250,248,244,.88);backdrop-f
 .shot:last-child{margin-top:34px}
 .case-note{margin-top:20px;text-align:center;color:var(--faint);font-size:.85rem}
 
+/* client quote */
+.quote{max-width:780px;margin:72px auto 0;text-align:center;padding:0 10px}
+.quote .qm{font-family:var(--disp);font-weight:900;font-size:5rem;line-height:.6;color:var(--bronze);opacity:.85;margin-bottom:18px}
+.quote .qt{font-family:var(--disp);font-weight:700;font-size:clamp(1.25rem,2.6vw,1.7rem);line-height:1.5;color:var(--ink)}
+.quote .who{margin-top:22px;display:flex;flex-direction:column;gap:2px}
+.quote .who b{font-weight:600;color:var(--ink)}
+.quote .who span{color:var(--faint);font-size:.9rem}
+.quote .who .vchip{margin:10px auto 0;display:inline-flex;align-items:center;gap:7px;background:var(--bronze-soft);color:var(--bronze-dark);font-size:.78rem;font-weight:600;border-radius:999px;padding:5px 14px;width:fit-content}
+.quote .who .vchip .ico{width:12px;height:12px}
+
 /* ideas gallery */
 .ideas{margin-top:64px}
 .ideas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
